@@ -1,0 +1,46 @@
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+
+class Solution {
+public:
+    bool canFinish(int numCourses, std::vector<std::vector<int>>& prerequisites) {
+        // Crear el grafo como un mapa de listas de adyacencia.
+        std::unordered_map<int, std::vector<int>> graph;
+        for (const auto& pair : prerequisites) {
+            graph[pair[1]].push_back(pair[0]);
+        }
+        
+        // Estados: 0 = no visitado, 1 = visitado en el recorrido actual, 2 = visitado en recorridos anteriores.
+        std::vector<int> visited(numCourses, 0);
+
+        // Llamar DFS en cada curso que no ha sido visitado.
+        for (int i = 0; i < numCourses; ++i) {
+            if (visited[i] == 0 && !dfs(graph, i, visited)) {
+                return false; // Si se detecta un ciclo, no se pueden completar los cursos.
+            }
+        }
+        
+        return true; // No se detectó ningún ciclo, se pueden completar los cursos.
+    }
+
+private:
+    bool dfs(const std::unordered_map<int, std::vector<int>>& graph, int node, std::vector<int>& visited) {
+        if (visited[node] == 1) return false; // Se detectó un ciclo.
+        if (visited[node] == 2) return true;  // Ya se ha visitado en recorridos anteriores sin encontrar ciclos.
+
+        visited[node] = 1; // Marcar como visitado en el recorrido actual.
+
+        // Realizar DFS en los vecinos.
+        if (graph.find(node) != graph.end()) {
+            for (int neighbor : graph.at(node)) {
+                if (!dfs(graph, neighbor, visited)) {
+                    return false; // Se detectó un ciclo.
+                }
+            }
+        }
+
+        visited[node] = 2; // Marcar como completado.
+        return true; // No se encontraron ciclos.
+    }
+};
