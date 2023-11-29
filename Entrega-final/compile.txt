@@ -1,0 +1,1 @@
+g++ song.h main.cpp -o songs
